@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 
 app.use(cors({
-    origin:["https://rouchacielo-nsqy.vercel.app/"],
+    origin:[""],
     method:["POST","GET"],
     Credential:true
 }));
