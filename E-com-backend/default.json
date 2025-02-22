@@ -1,0 +1,53 @@
+
+{
+  "name": "Product A",
+  "price": 100,
+  "description": "This is Product A",
+  "category": "Category A"
+}
+{
+  "_id": "product-id",
+  "name": "Product A",
+  "price": 100,
+  "description": "This is Product A",
+  "category": "Category A",
+  "__v": 0
+}
+{
+  "name": "Updated Product A",
+  "price": 120
+},
+
+{
+  "_id": "product-id",
+  "name": "Updated Product A",
+  "price": 120,
+  "description": "This is Product A",
+  "category": "Category A",
+  "__v": 0
+}
+
+{
+  "message": "Product deleted successfully"
+}
+
+{
+  "error": "Product not found"
+}
+
+[
+  {
+    "_id": "product-id-1",
+    "name": "Product A",
+    "price": 100,
+    "description": "This is Product A",
+    "category": "Category A"
+  }
+  {
+    "_id": "product-id-2",
+    "name": "Product B",
+    "price": 150,
+    "description": "This is Product B",
+    "category": "Category B"
+  }
+]

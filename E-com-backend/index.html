@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload to ImgBB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-center mb-6">Image Upload</h2>
+        
+        <div class="space-y-4">
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-500 transition-colors" id="dropZone">
+                <input type="file" id="fileInput" accept="image/*" class="hidden">
+                <div class="space-y-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p class="text-gray-600">Click to upload or drag and drop</p>
+                    <p class="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                </div>
+            </div>
+
+            <div id="preview" class="hidden">
+                <img id="imagePreview" class="w-full h-48 object-cover rounded-lg" src="" alt="Preview">
+            </div>
+
+            <button id="uploadButton" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400" disabled>
+                Upload Image
+            </button>
+
+            <div id="result" class="hidden">
+                <p class="text-sm text-gray-600 mb-2">Image URL:</p>
+                <div class="flex">
+                    <input type="text" id="imageUrl" class="flex-1 border rounded-l-lg px-3 py-2 text-sm" readonly>
+                    <button onclick="copyUrl()" class="bg-gray-100 px-4 rounded-r-lg border-t border-r border-b hover:bg-gray-200">
+                        Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+   <script>
+    const API_KEY = '4a083ad8d515172a38721e8eb1809147'; // Replace with your new API key
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const preview = document.getElementById('preview');
+    const imagePreview = document.getElementById('imagePreview');
+    const uploadButton = document.getElementById('uploadButton');
+    const result = document.getElementById('result');
+    const imageUrl = document.getElementById('imageUrl');
+
+    // Handle click on drop zone
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', handleFileSelect);
+
+    // Handle drag and drop
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-blue-500');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('border-blue-500');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-blue-500');
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    function handleFileSelect(e) {
+        const files = e.target.files;
+        handleFiles(files);
+    }
+
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    uploadButton.disabled = false;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select an image file.');
+            }
+        }
+    }
+
+    // Handle upload
+    uploadButton.addEventListener('click', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        uploadButton.disabled = true;
+        uploadButton.textContent = 'Uploading...';
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            console.log('API Response:', data); // Debugging: Log the API response
+
+            if (data.success) {
+                imageUrl.value = data.data.url;
+                result.classList.remove('hidden');
+            } else {
+                console.error('API Error:', data.error); // Debugging: Log the API error
+                alert(`Upload failed: ${data.error?.message || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error:', error); // Debugging: Log the error
+            alert('Upload failed. Please try again.');
+        } finally {
+            uploadButton.disabled = false;
+            uploadButton.textContent = 'Upload Image';
+        }
+    });
+
+    // Copy URL function
+    function copyUrl() {
+        imageUrl.select();
+        document.execCommand('copy');
+        alert('URL copied to clipboard!');
+    }
+   </script>
+</body>
+</html>
